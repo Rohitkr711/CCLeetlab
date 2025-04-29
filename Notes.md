@@ -61,6 +61,19 @@ if(process.env.NODE_ENV !== "production") globalForPrisma.prisma=db;
 `npx prisma migrate deploy/npx prisma db push`: Use this in production or staging environments where you want to apply a pre-generated set of migrations. This is used for deployments in a more controlled, production-ready scenario.
 
 
+`In postgres prisma client automatically saves the newly created user into the database we don't need to specifically save it like we do in mongoose mongoDB.`
+ 
+###### 4. Steps to check table's data of postgres db created using DOCKER (using CLI)
+```bash
+> docker ps
+> docker exec -it postgres-container-name bash (it will open a bash shell into that container)
+> psql -U postgres-DB-username (it will open postgres CLI)
+> \l (shows all DBs)
+> \c your_db_name (connects to your DB)
+> \dt (list down all tables)
+> \d "table-name" (shows table structure)
+> SELECT * FROM "tablename" (shows all table data) 
+```
 
 
 
