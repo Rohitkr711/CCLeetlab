@@ -1,5 +1,9 @@
 # LEETCODE CLONE LEC-1
 
+#### System Architecture
+[Arch Diagram](./diagram_lyst1745252581414.png)
+
+
 ###### 1. Implement the image store technique in this User model here using cloudinary or something else. ==(ASSIGNMENT)==
 ```bash
 model User 
@@ -72,8 +76,11 @@ if(process.env.NODE_ENV !== "production") globalForPrisma.prisma=db;
 > \c your_db_name (connects to your DB)
 > \dt (list down all tables)
 > \d "table-name" (shows table structure)
-> SELECT * FROM "tablename" (shows all table data) 
+> SELECT * FROM "tablename" (shows all table data)
 ```
+- Using `openssl rand -tokenformat tokensize` we can generate random token in gitbash terminal which we can use in jwt token or etc. 
+Here, token-format could be like hex.
+
 
 
 
