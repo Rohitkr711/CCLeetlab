@@ -82,5 +82,99 @@ if(process.env.NODE_ENV !== "production") globalForPrisma.prisma=db;
 Here, token-format could be like hex.
 
 
+###### 5. When the actual table will be created into a database then inside problem table will there be a columns with name UserId and user also?
+
+```bash
+model User 
+{
+  id                String   @id @default(uuid())
+  name              String?
+  email             String   @unique
+  image             String?
+  role              UserRole @default(USER)
+  password          String
+  verificationToken String?
+  isVerify          Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now())
+
+  problem Problem[]
+}
+
+
+model Problem
+{
+  Id String @id @default(uuid())
+  title String
+  description String
+  difficulty Difficulty
+  UserId String
+  tag String[]
+  examples Json
+  contraints String
+  hint String?
+  editorial String?
+
+  testcase Json
+  codeSnippit Json
+  referenceSolution Json
+
+  created DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationship
+  user User @relation(fields:[UserId], references:[id], onDelete:Cascade)
+}
+
+```
+When the database tables are generated from your Prisma schema:
+✅ There will be a column named UserId in the Problem table.
+❌ There will NOT be a separate column named user in the Problem table.
+
+`UserId` → This is the actual column stored in the database (foreign key).
+`user` → This is a virtual relation field used by Prisma in your application code. It's not a column in the database.
+
+But, `the problem.user will give you the user object` — even though there's no user column — because Prisma joins it using the relation.
+```bash
+const problem = await prisma.problem.findFirst({
+  include: {
+    user: true // ← this works because of the virtual relation field
+  }
+})
+```
+
+✅ Best Practice:
+Always define the relation field (user) unless you never plan to query the associated User directly from Problem — which is rare.
+
+
+###### Q) Would there be a problem column created inside user table using above model?`
+`No`, there will not be a problem column created in the User table.
+It is a virtual field (not stored in the database). It tells Prisma: "This user can be associated with many problems". It does not result in a problem column in the database.
+
+
+`So what if we don't write "problem Problem[]" in User model and just define the relationship in the problem table only-- will it still work?`
+Yes, the relationship will still work correctly. Because Prisma only needs the @relation defined on one side to understand the link(we already do in Problem).
+
+🧠 So why include `problem Problem[]` in User?
+It lets you easily query all problems created by a user, like this:
+```bash
+const userWithProblems = await prisma.user.findUnique({
+  where: { id: "some-user-id" },
+  include: {
+    problem: true, // 👈 Thanks to `problem Problem[]` field
+  },
+});
+
+console.log(userWithProblems.problem); // List of problems created by the user
+
+```
+So, If you `don’t define problem Problem[]`, the Prisma Client won’t know that User has a related list of problems — even though the foreign key exists.
+
+🧠 `Why does this work? i.e problem Problem[].`
+Because problem Problem[] tells Prisma:
+“This user can be associated with multiple Problem records.”
+That’s why Prisma Client gives you access to that problem field for querying, filtering, including, etc.
+
+
 
 
